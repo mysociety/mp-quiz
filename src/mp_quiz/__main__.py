@@ -1,5 +1,7 @@
 import rich_click as click
 
+from .get_data import create_json
+
 
 @click.group()
 def cli():
@@ -11,8 +13,8 @@ def main():
 
 
 @cli.command()
-def example():
-    print("This is an example function")
+def get_data():
+    create_json()
 
 
 if __name__ == "__main__":

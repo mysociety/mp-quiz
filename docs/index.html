@@ -1,0 +1,256 @@
+---
+title: "MP Name Quiz"
+layout: default
+---
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<div class="container">
+
+    <h1>How many MPs can you name?</h1>
+
+
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="form-group">
+                <label for="nameInput">Enter an MP name:</label>
+                <input type="text" class="form-control" id="nameInput" placeholder="">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <p id="counter">0/650</p>
+            <p id="message"></p>
+            <div id="vis"></div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="data/d3-hexjson.min.js"></script>
+
+
+<script>
+
+    function drawMap() {
+        $.getJSON('data/constituencies.hexjson', function (hexjson) {
+            console.log("Loaded hexjson");
+            // Set the size and margins of the svg
+            var margin = { top: 10, right: 10, bottom: 10, left: 10 },
+                width = 500 - margin.left - margin.right,
+                height = 420 - margin.top - margin.bottom;
+
+            // Create the svg element
+            var svg = d3
+                .select("#vis")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Create the grid hexes and render them
+            var grid = d3.getGridForHexJSON(hexjson);
+            var gridHexes = d3.renderHexJSON(grid, width, height);
+
+            // Render the data hexes
+            var hexes = d3.renderHexJSON(hexjson, width, height);
+
+            // Draw the background grid BEFORE the data
+
+            // Bind the grid hexes to g.grid elements of the svg and position them
+            var hexgrid = svg
+                .selectAll("g.grid")
+                .data(gridHexes)
+                .enter()
+                .append("g")
+                .attr("transform", function (hex) {
+                    return "translate(" + hex.x + "," + hex.y + ")";
+                });
+
+            // Draw the polygons around each grid hex's centre
+            hexgrid
+                .append("polygon")
+                .attr("points", function (hex) { return hex.points; })
+                .attr("stroke", "white")
+                .attr("stroke-width", "1")
+                .attr("fill", "white");
+
+            // Bind the data hexes to g.data elements of the svg and position them
+            var hexmap = svg
+                .selectAll("g.data")
+                .data(hexes)
+                .enter()
+                .append("g")
+                .attr("transform", function (hex) {
+                    return "translate(" + hex.x + "," + hex.y + ")";
+                });
+
+            // Draw the polygons around each data hex's centre
+            hexmap
+                .append("polygon")
+                .attr("points", function (hex) { return hex.points; })
+                .attr("stroke", "white")
+                .attr("stroke-width", "2")
+                .attr("fill", "#b0e8f0")
+                .attr("id", function (hex) { return cleanText(hex.n); });
+
+            updateMap();
+
+        });
+    };
+
+
+    var currentMPs = [];
+    var niceNameLookup = {};
+    var mpLookup = {};
+
+    function loadData(callback) {
+        // Load nice_name lookup from data/nice_name_lookup.json
+        // this is a name of real names to IDs
+        $.getJSON('data/nice_name_lookup.json', function (data) {
+            // the data is nice_name to id lookup
+            // but we want this as cleanText(nice_name) to id
+            for (var niceName in data) {
+                var cleanNiceName = cleanText(niceName);
+                niceNameLookup[cleanNiceName] = data[niceName];
+            }
+
+            // Load the MP lookup from data/current_mp.json
+            // this is an ID to a collection of properties of the MP
+            $.getJSON('data/current_mp.json', function (data) {
+                for (var mp in data) {
+                    mpLookup[mp] = data[mp];
+                }
+                callback();
+            });
+
+        });
+
+
+    }
+
+
+
+    function updateMap() {
+        // iterate through all currentMPs
+        // for each one, get the full values from the lookup
+        // use the constituency to set the fill colour of the hex
+
+        currentMPs.forEach(function (mp) {
+            console.log(Object.keys(mpLookup).length);
+            // log number of keys in mpLookup
+            var mpData = mpLookup[mp];
+            var constituency = mpData["constituency"];
+            var cleanConstituency = cleanText(constituency);
+            d3.select("#" + cleanConstituency).attr("fill", "red");
+        });
+
+    }
+
+    function cleanText(text) {
+        // Convert text to lowercase
+        text = text.toLowerCase();
+
+        // Remove punctuation and whitespace
+        text = text.replace(/[^\w\s]/g, '').replace(/\s+/g, '');
+
+        // remove any sequential duplicate characters
+
+        text = text.replace(/(.)\1+/g, '$1');
+
+        // order text alphabetically
+
+        text = text.split('').sort().join('');
+
+        return text;
+    }
+
+
+
+    function updateCounter() {
+        // Update the counter
+        $('#counter').text(currentMPs.length + '/650');
+    }
+
+
+    function addMP(id) {
+
+        // clear the input field
+        $('#nameInput').val('');
+
+        // if id not already in the list
+        if (currentMPs.indexOf(id) === -1) {
+            // Add the id to the list
+            currentMPs.push(id);
+            // flash the input field green
+            $('#nameInput').addClass('is-valid');
+            setTimeout(function () {
+                $('#nameInput').removeClass('is-valid');
+            }, 1000);
+        } else {
+            // Send a message that we've already got that one - remove five seconds later
+            $('#message').text("You've already added that MP!");
+            setTimeout(function () {
+                $('#message').text('');
+            }, 5000);
+
+        }
+        // Save the updated array back to local storage
+        localStorage.setItem('currentMPs', JSON.stringify(currentMPs));
+        // Update the counter
+        updateCounter();
+        // Update the map
+        updateMap();
+    }
+
+    function checkMP(name) {
+
+        // if name is 'reset' then reset the list
+        if (name === 'reset') {
+            currentMPs = [];
+            localStorage.setItem('currentMPs', JSON.stringify(currentMPs));
+            updateCounter();
+            return;
+        }
+
+        // Clean the name
+        name = cleanText(name);
+
+        // Check if the name is in the niceNameLookup
+        if (niceNameLookup[name]) {
+            // Add the MP to the list
+            addMP(niceNameLookup[name]);
+        }
+    }
+
+    // check everytime the input field changes
+    $('#nameInput').on('input', function () {
+        checkMP($('#nameInput').val());
+    });
+
+    $(document).ready(function () {
+        // Check if it's the first load
+        if (!localStorage.getItem('currentMPs')) {
+            // First load, initialize an empty array
+            localStorage.setItem('currentMPs', JSON.stringify(currentMPs));
+        } else {
+            // Retrieve the array from local storage
+            currentMPs = JSON.parse(localStorage.getItem('currentMPs'));
+        }
+        // Update the counter
+        updateCounter();
+        // Load the nice name lookup and MP lookup
+        loadData(function () {
+            // Draw the map
+            drawMap();
+        });
+    });
+
+
+
+</script>
