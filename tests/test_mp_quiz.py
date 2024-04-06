@@ -1,4 +1,4 @@
-import template_data_repo
+import mp_quiz
 
 import pytest
 
