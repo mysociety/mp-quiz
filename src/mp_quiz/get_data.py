@@ -1,4 +1,4 @@
-import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -16,6 +16,23 @@ class DataDump(BaseModel):
     current_mps: dict[int, CurrentMP]
     current_mp_lookup: dict[str, list[int]]
     former_mp_lookup: dict[str, list[int]]
+
+
+def clean_text(text: str) -> str:
+    # Convert text to lowercase
+    text = text.lower()
+
+    # Remove punctuation and whitespace
+    text = re.sub(r"[^\w\s]", "", text)
+    text = re.sub(r"\s+", "", text)
+
+    # Remove any sequential duplicate characters
+    text = re.sub(r"(.)\1+", r"\1", text)
+
+    # Order text alphabetically
+    text = "".join(sorted(text))
+
+    return text
 
 
 def create_json():
@@ -83,6 +100,28 @@ def create_json():
         .apply(list)
         .to_dict()
     )
+
+    # now - we want to make sure that there isn't a "shorter" former person name
+    # that is a substring of a current person name
+    # this will block matching on the longer name
+
+    to_pop = []
+
+    current_name_clean_li = []
+    for x in nice_name_to_current_person_id:
+        for partial_len in range(1, len(x)):
+            current_name_clean_li.append((x, clean_text(x[:partial_len])))
+
+    former_name_clean_li = [(x, clean_text(x)) for x in nice_name_to_former_person_id]
+
+    for current_name, current_name_clean in current_name_clean_li:
+        for former_name, former_name_clean in former_name_clean_li:
+            if current_name_clean.startswith(former_name_clean):
+                to_pop.append(former_name)
+
+    to_pop = list(set(to_pop))
+    for name in to_pop:
+        nice_name_to_former_person_id.pop(name)
 
     data = DataDump(
         current_mps=current_mp_list,
