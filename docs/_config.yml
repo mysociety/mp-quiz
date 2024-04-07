@@ -5,6 +5,12 @@ description: null
 baseurl: "/mp-quiz"
 url: "https://pages.mysociety.org"
 
+navigation:
+  - title: "Read the research"
+    url: "/"
+  - title: "Donate"
+    url: "https://www.mysociety.org/donate?utm_source=mp-quiz&utm_medium=referral&utm_campaign=mp-quiz"
+
 collections:
   versionlists:
     output: true
