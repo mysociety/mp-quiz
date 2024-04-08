@@ -206,8 +206,8 @@ layout: default
         }
 
         function sendMessage(message) {
-            // Send a message to the user
-            $('#message').text(message);
+            // Send a message to the user - allow html content
+            $('#message').html(message);
         }
 
         function addMP(id) {
@@ -234,7 +234,17 @@ layout: default
                     $('#nameInput').removeClass('is-valid');
                 }, 1000);
                 // we want a message that "{name} is the MP for {constituency}"
-                sendMessage(mpLookup[id]["name"] + " is the MP for " + mpLookup[id]["constituency"]);
+                messageLines = [];
+                twfy_link = "https://www.theyworkforyou.com/mp/" + id;
+                lih_link = "https://www.localintelligencehub.com/area/WMC/" + mpLookup[id]["constituency"];
+
+                messageLines.push(mpLookup[id]["name"] + " is the MP for " + mpLookup[id]["constituency"]);
+                messageLines.push("View this MP on <a href=\""+ twfy_link + "\">TheyWorkForYou</a>")
+                messageLines.push("View this constituency in the <a href=\""+ lih_link + "\">Local Intelligence Hub</a>")
+                
+                message = messageLines.join("<br>");
+
+                sendMessage(message);
             } else {
                 mpData = mpLookup[id];
                 // Send a message that we've already got that one - remove five seconds later
