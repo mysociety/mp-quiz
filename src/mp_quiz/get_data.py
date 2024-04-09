@@ -88,7 +88,7 @@ def create_json():
     nice_name_to_current_person_id = (
         alt_names[alt_names["person_id"].isin(current_mp_ids)]
         .groupby("nice_name")["person_id"]
-        .apply(list)
+        .apply(lambda x: list(set(list(x))))
         .to_dict()
     )
 
@@ -97,7 +97,7 @@ def create_json():
     nice_name_to_former_person_id = (
         alt_names[alt_names["person_id"].isin(other_mps_ids)]
         .groupby("nice_name")["person_id"]
-        .apply(list)
+        .apply(lambda x: list(set(list(x))))
         .to_dict()
     )
 
