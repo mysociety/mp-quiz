@@ -183,9 +183,11 @@ layout: default
             // Remove punctuation and whitespace
             text = text.replace(/[^\w\s]/g, '').replace(/\s+/g, '');
 
-            // remove any sequential duplicate characters
+            // remove any sequential duplicate characters except for the final two characters
 
-            text = text.replace(/(.)\1+/g, '$1');
+            text_minus_two = text.slice(0, -2);
+            text_last_two = text.slice(-2);
+            text = text_minus_two.replace(/(.)\1+/g, '$1') + text_last_two;
 
             // order text alphabetically
 
@@ -239,9 +241,9 @@ layout: default
                 lih_link = "https://www.localintelligencehub.com/area/WMC/" + mpLookup[id]["constituency"];
 
                 messageLines.push(mpLookup[id]["name"] + " is the MP for " + mpLookup[id]["constituency"]);
-                messageLines.push("View this MP on <a href=\""+ twfy_link + "\">TheyWorkForYou</a>")
-                messageLines.push("View this constituency in the <a href=\""+ lih_link + "\">Local Intelligence Hub</a>")
-                
+                messageLines.push("View this MP on <a href=\"" + twfy_link + "\">TheyWorkForYou</a>")
+                messageLines.push("View this constituency in the <a href=\"" + lih_link + "\">Local Intelligence Hub</a>")
+
                 message = messageLines.join("<br>");
 
                 sendMessage(message);
@@ -273,7 +275,6 @@ layout: default
             }
 
             // Clean the name
-            console.log(name);
             originalName = name;
             name = cleanText(name);
 
@@ -301,7 +302,6 @@ layout: default
 
         // check everytime the input field changes
         $('#nameInput').on('input', function () {
-            sendMessage('');
             checkMP($('#nameInput').val());
         });
 
