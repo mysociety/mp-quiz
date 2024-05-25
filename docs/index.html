@@ -1,5 +1,5 @@
 ---
-title: "MP Namer"
+title: "How many MPs can you name?"
 layout: default
 ---
 
@@ -21,7 +21,8 @@ layout: default
             <div class="form-group">
                 <label for="nameInput">Enter an MP name:</label>
                 <input type="text" class="form-control" id="nameInput" placeholder="">
-                <p id="message"></p>
+                <p id="message" style="padding-top:10px;">Say goodbye to the 2019-2024 Parliament by naming as many as
+                    you can!</p>
             </div>
         </div>
         <div class="col-md-6">
@@ -30,14 +31,21 @@ layout: default
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
+
             <p>Data Credits:</p>
             <ul>
-                <li>MP data from <a href="https://www.theyworkforyou.com">TheyWorkForYou</a></li>
+                <li>MP data from <a href="https://www.theyworkforyou.com">TheyWorkForYou</a>. Enter your postcode to see
+                    candidates for the election!</li>
                 <li><a href="https://open-innovations.org/projects/hexmaps/constituencies/">Constituency hexmap data
                         from OpenInnovations</a></li>
                 <li>HexJSON d3 library from <a href="https://github.com/olihawkins/d3-hexjson">Oli Hawkins</a></li>
             </ul>
+            <div class="alert alert-primary" role="alert">
+                <b>Support mySociety</b> - mySociety is the charity behind TheyWorkForYou, WriteToThem, FixMyStreet, and
+                WhatDoTheyKnow. If you value our work and want to see it go further - please consider <a
+                    href="https://www.theyworkforyou.com/support-us/?utm_source=mp-quiz&utm_medium=referral&utm_campaign=mp-quiz&how-much=10&how-often=one-off#donate-form">donating</a>.
+            </div>
         </div>
     </div>
 
@@ -264,7 +272,7 @@ layout: default
         function checkMP(name) {
 
             // if name is 'reset' then reset the list
-            if (name === 'reset') {
+            if (name === 'resetcount') {
                 currentMPs = [];
                 localStorage.setItem('currentMPs', JSON.stringify(currentMPs));
                 updateCounter();

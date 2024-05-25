@@ -1,15 +1,13 @@
 theme: jekyll-theme-slate
 title: "MP Name Quiz"
-description: null
+description: "Say goodbye to the 2019-2024 Parliament by naming as many as you can."
 
 baseurl: "/mp-quiz"
 url: "https://pages.mysociety.org"
 
 navigation:
-  - title: "Read the research"
-    url: "https://research.mysociety.org/html/who-is-your-mp/"
-  - title: "Donate"
-    url: "https://www.mysociety.org/donate?utm_source=mp-quiz&utm_medium=referral&utm_campaign=mp-quiz"
+  - title: "Donate £10 to mySociety"
+    url: "https://www.theyworkforyou.com/support-us/?utm_source=mp-quiz&utm_medium=referral&utm_campaign=mp-quiz&how-much=10&how-often=one-off#donate-form"
 
 collections:
   versionlists:
@@ -58,7 +56,7 @@ twittercard:
   enabled: true
   username: "@mysociety"
 
-logo: "/theme/img/mysociety-large-social.png"
+logo: "/img/social.png"
 layouts_dir: theme/_layouts
 includes_dir: theme/_includes
 
